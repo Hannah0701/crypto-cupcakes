@@ -31,8 +31,25 @@ app.use(express.urlencoded({extended:true}));
 app.use(auth(config));
 
 // create a GET / route handler that sends back Logged in or Logged out
-app.get('/cupcakes', (req, res) => {
-  res.send(req.oidc.isAuthenticated() ? 'Logged in' : 'Logged out');
+app.get('/', (req, res) => {
+  if (req.oidc.isAuthenticated()) {
+    console.log('user: ', req.oidc.user);
+    const html = `
+      <html>
+        <head>
+          <title>Logged in</title>
+        </head>
+        <body>
+          <h1>Welcome, ${req.oidc.user.name}!</h1>
+          <img src="${req.oidc.user.picture}" alt="user picture" />
+          <p>Email: ${req.oidc.user.email}</p>
+        </body>
+      </html>
+    `;
+    res.send(html);
+  } else {
+    res.send('Logged out');
+  }
 });
 
 app.get('/cupcakes', async (req, res, next) => {
